@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "The Card Game.Plugins", "Th
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "The Card Game", "The Card Game.csproj", "{65D9CB63-DB66-DB3B-DB74-5A02155CC639}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "The Card Game.Editor", "The Card Game.Editor.csproj", "{F8CEF350-CE38-2CFF-A2A1-995148168ECF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{65D9CB63-DB66-DB3B-DB74-5A02155CC639}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65D9CB63-DB66-DB3B-DB74-5A02155CC639}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65D9CB63-DB66-DB3B-DB74-5A02155CC639}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8CEF350-CE38-2CFF-A2A1-995148168ECF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8CEF350-CE38-2CFF-A2A1-995148168ECF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8CEF350-CE38-2CFF-A2A1-995148168ECF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8CEF350-CE38-2CFF-A2A1-995148168ECF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

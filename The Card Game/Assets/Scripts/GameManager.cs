@@ -10,6 +10,36 @@ public enum Participatns
 {
     Player,
     Oponent
+
+}
+
+public class FSMHandler
+{
+    public FSMSystem<PlayerFSMTransitions, PlayerFSMStates> MakeFSM()
+    {
+        var FSM = new FSMSystem<PlayerFSMTransitions, PlayerFSMStates>();
+        var playerTurnState = new PlayerTurn();
+        playerTurnState.AddTransition(PlayerFSMTransitions.PlayCard, PlayerFSMStates.PlayCard);
+        playerTurnState.AddTransition(PlayerFSMTransitions.EndTurn, PlayerFSMStates.EndTurn);
+        playerTurnState.AddTransition(PlayerFSMTransitions.Stand, PlayerFSMStates.Stand);
+        FSM.AddState(playerTurnState);
+
+        var playCardState = new PlayCard();
+        playCardState.AddTransition(PlayerFSMTransitions.PlayCard, PlayerFSMStates.PlayCard);
+        playCardState.AddTransition(PlayerFSMTransitions.EndTurn, PlayerFSMStates.EndTurn);
+        playCardState.AddTransition(PlayerFSMTransitions.Stand, PlayerFSMStates.Stand);
+        FSM.AddState(playCardState);
+
+        var standState = new Stands();
+        standState.AddTransition(PlayerFSMTransitions.PassControllToOtherPlayer, PlayerFSMStates.OtherPlayerTurn);
+        FSM.AddState(standState);
+
+        var waitForTurn = new OtherPlayerTurn();
+        waitForTurn.AddTransition(PlayerFSMTransitions.StartPlayerTurn, PlayerFSMStates.PlayerTurn);
+        FSM.AddState(waitForTurn);
+
+        return FSM;
+    }
 }
 
 public class GameManager : MonoBehaviour
