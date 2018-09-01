@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 
 /**
@@ -164,8 +165,9 @@ public class FSMSystem<T,S>
     // Don't change the CurrentState directly
     private S currentStateID;
     public S CurrentStateID { get { return currentStateID; } }
-    private FSMState<T,S> currentState;
-    public FSMState<T, S> CurrentState { get { return currentState; } }
+    private ReactiveProperty<FSMState<T,S>> currentState = new ReactiveProperty<FSMState<T, S>>();
+    public FSMState<T, S> CurrentState { get { return currentState.Value; } }
+    public ReactiveProperty<FSMState<T, S>> CurrentStateReactiveProperty { get { return currentState; } }
 
     public FSMSystem()
     {
@@ -190,7 +192,7 @@ public class FSMSystem<T,S>
         if (states.Count == 0)
         {
             states.Add(s);
-            currentState = s;
+            currentState.Value = s;
             currentStateID = s.ID;
             return;
         }
@@ -243,7 +245,7 @@ public class FSMSystem<T,S>
     public void PerformTransition(T trans)
     {
         // Check if the currentState has the transition passed as argument
-        S id = currentState.GetOutputState(trans);
+        S id = currentState.Value.GetOutputState(trans);
         if (id.Equals(default(S)))
         {
             Debug.LogError("FSM ERROR: State " + currentStateID.ToString() + " does not have a target state " +
@@ -258,12 +260,12 @@ public class FSMSystem<T,S>
             if (state.ID.Equals(currentStateID))
             {
                 // Do the post processing of the state before setting the new one
-                currentState.DoBeforeLeaving();
+                currentState.Value.DoBeforeLeaving();
 
-                currentState = state;
+                currentState.Value = state;
 
                 // Reset the state to its desired condition before it can reason or act
-                currentState.DoBeforeEntering();
+                currentState.Value.DoBeforeEntering();
                 break;
             }
         }
@@ -306,13 +308,6 @@ public class EndedTurn : FSMState<PlayerFSMTransitions, PlayerFSMStates>
     }
 }
 
-public class HouseDealsCard : FSMState<PlayerFSMTransitions, PlayerFSMStates>
-{
-    public HouseDealsCard()
-    {
-        stateID = PlayerFSMStates.HouseDealsCard;
-    }
-}
 
 public class Stands : FSMState<PlayerFSMTransitions, PlayerFSMStates>
 {
@@ -333,7 +328,7 @@ public class OtherPlayerTurn : FSMState<PlayerFSMTransitions, PlayerFSMStates>
 public enum PlayerFSMTransitions
 {
     NullTransition,
-    StartPlayerTurn,
+    PlayerTurn,
     PlayCard,
     EndTurn,
     Stand,
@@ -346,7 +341,6 @@ public enum PlayerFSMStates
     PlayerTurn,
     PlayCard,
     EndTurn,
-    HouseDealsCard,
     Stand,
     OtherPlayerTurn
 }

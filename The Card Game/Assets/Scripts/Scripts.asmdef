@@ -1,0 +1,11 @@
+{
+    "name": "Scripts",
+    "references": [
+        "Plugins",
+        "Zenject"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

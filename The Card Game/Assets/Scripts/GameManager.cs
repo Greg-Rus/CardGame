@@ -4,132 +4,43 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Zenject;
 using Random = UnityEngine.Random;
 
-public enum Participatns
+public enum Players
 {
-    Player,
-    Oponent
+    Top,
+    Bottom
 
-}
-
-public class FSMHandler
-{
-    public FSMSystem<PlayerFSMTransitions, PlayerFSMStates> MakeFSM()
-    {
-        var FSM = new FSMSystem<PlayerFSMTransitions, PlayerFSMStates>();
-        var playerTurnState = new PlayerTurn();
-        playerTurnState.AddTransition(PlayerFSMTransitions.PlayCard, PlayerFSMStates.PlayCard);
-        playerTurnState.AddTransition(PlayerFSMTransitions.EndTurn, PlayerFSMStates.EndTurn);
-        playerTurnState.AddTransition(PlayerFSMTransitions.Stand, PlayerFSMStates.Stand);
-        FSM.AddState(playerTurnState);
-
-        var playCardState = new PlayCard();
-        playCardState.AddTransition(PlayerFSMTransitions.PlayCard, PlayerFSMStates.PlayCard);
-        playCardState.AddTransition(PlayerFSMTransitions.EndTurn, PlayerFSMStates.EndTurn);
-        playCardState.AddTransition(PlayerFSMTransitions.Stand, PlayerFSMStates.Stand);
-        FSM.AddState(playCardState);
-
-        var standState = new Stands();
-        standState.AddTransition(PlayerFSMTransitions.PassControllToOtherPlayer, PlayerFSMStates.OtherPlayerTurn);
-        FSM.AddState(standState);
-
-        var waitForTurn = new OtherPlayerTurn();
-        waitForTurn.AddTransition(PlayerFSMTransitions.StartPlayerTurn, PlayerFSMStates.PlayerTurn);
-        FSM.AddState(waitForTurn);
-
-        return FSM;
-    }
 }
 
 public class GameManager : MonoBehaviour
 {
 
     public UiView UiView;
-    public GameObject PlayersGrid;
-    public GameObject OponentsGrid;
     public CardView CardPrefab;
 
-    private ReactiveProperty<bool> PlayerStands = new ReactiveProperty<bool>(true);
-    private ReactiveProperty<bool> OponentStands = new ReactiveProperty<bool>(true);
-    private ReactiveProperty<bool> PlayerTurn = new ReactiveProperty<bool>(true);
-    private ReactiveProperty<bool> OponentTurn = new ReactiveProperty<bool>(true);
+    [Inject]
+    private FSMSystem<PlayerFSMTransitions, PlayerFSMStates> _topPlayerFsm;
+    [Inject]
+    private FSMSystem<PlayerFSMTransitions, PlayerFSMStates> _bottomPlayerFsm;
 
-    private ReactiveProperty<int> PlayersScore = new ReactiveProperty<int>(0);
-    private ReactiveProperty<int> OponentsScore = new ReactiveProperty<int>(0);
+    private Queue<FSMSystem<PlayerFSMTransitions, PlayerFSMStates>> _playerQueue;
 
-    private ReactiveCommand PlayerStand;
-    private ReactiveCommand PlayerEndTurn;
-    private ReactiveCommand OponentStand;
-    private ReactiveCommand OponentEndTurn;
+    private ReactiveCommand TopPlayerEndTurn;
+    private ReactiveCommand BottomPlayerEndTurn;
 
-    private ReactiveCommand<Participatns> DrawCardForParticipant;
     // Use this for initialization
     void Start ()
     {
+        _playerQueue = new Queue<FSMSystem<PlayerFSMTransitions, PlayerFSMStates>>();
+        _playerQueue.Enqueue(_topPlayerFsm);
+        _playerQueue.Enqueue(_bottomPlayerFsm);
 
-        SetupUiSubscriptions();
-        SetupEndRoundConditions();
-        SetupEndMatchSubscriptions();
+        TopPlayerEndTurn = new ReactiveCommand(_topPlayerFsm.CurrentStateReactiveProperty.Select(state => state.ID == PlayerFSMStates.PlayerTurn));
+        BottomPlayerEndTurn = new ReactiveCommand(_bottomPlayerFsm.CurrentStateReactiveProperty.Select(state => state.ID == PlayerFSMStates.PlayerTurn));
 
-
-    }
-
-    private void SetupEndRoundConditions()
-    {
-        PlayerTurn.CombineLatest(OponentTurn, (playerTurn, oponentTurn) => !playerTurn && !oponentTurn)
-            .Where(endRoundCriteriaMet => endRoundCriteriaMet)
-            .Subscribe(_ => EndRound());
-    }
-
-    private void SetupEndMatchSubscriptions()
-    {
-        DrawCardForParticipant = new ReactiveCommand<Participatns>();
-        DrawCardForParticipant.Subscribe(SpawnCardForPaticipant);
-        DrawCardForParticipant.Where(partcipant => partcipant == Participatns.Player).Skip(8).Subscribe(_ => EndMatch());
-        DrawCardForParticipant.Where(partcipant => partcipant == Participatns.Oponent).Skip(8).Subscribe(_ => EndMatch());
-    }
-
-    private void EndMatch()
-    {
-        SceneManager.LoadScene(0);
-    }
-
-    private void EndRound()
-    {
-        PlayerTurn.Value = PlayerStands.Value;
-        OponentTurn.Value = OponentStands.Value;
-        Debug.Log("End Round");
-    }
-
-    private void SetupUiSubscriptions()
-    {
-        PlayerStand = new ReactiveCommand(PlayerStands);
-        PlayerStand.Subscribe(_ =>
-        {
-            OnPlayerStands();
-            OnPlayerEndedTurn();
-        });
-        PlayerStand.BindTo(UiView.PlayerStand);
-
-        OponentStand = new ReactiveCommand(OponentStands);
-        OponentStand.Subscribe(_ =>
-        {
-            OnOponentStands();
-            OnOponentEndedTurn();
-        });
-        OponentStand.BindTo(UiView.OponentStand);
-
-        PlayerEndTurn = new ReactiveCommand(PlayerTurn);
-        PlayerEndTurn.Subscribe(_ => OnPlayerEndedTurn());
-        PlayerEndTurn.BindTo(UiView.PlayerEndTurn);
-
-        OponentEndTurn = new ReactiveCommand(OponentTurn);
-        OponentEndTurn.Subscribe(_ => OnOponentEndedTurn());
-        OponentEndTurn.BindTo(UiView.OponentEndTurn);
-
-        PlayersScore.Subscribe(score => UiView.PlayerScoreText = score);
-        OponentsScore.Subscribe(score => UiView.OponentScoreText = score);
+        TopPlayerEndTurn.Subscribe(_ => { });
     }
 
     // Update is called once per frame
@@ -137,45 +48,19 @@ public class GameManager : MonoBehaviour
 		
 	}
 
-    private void OnPlayerStands()
+    private void SeitchPlayers()
     {
-        PlayerStands.Value = false;
-    }
-    private void OnOponentStands()
-    {
-        OponentStands.Value = false;
+        var currentPlayer = _playerQueue.Dequeue();
+        _playerQueue.Enqueue(currentPlayer);
     }
 
-    private void OnPlayerEndedTurn()
+    private FSMSystem<PlayerFSMTransitions, PlayerFSMStates> CurrentPlayerFsm
     {
-        PlayerTurn.Value = false;
-        DrawCardForParticipant.Execute(Participatns.Player);
-
-    }
-    private void OnOponentEndedTurn()
-    {
-        OponentTurn.Value = false;
-        DrawCardForParticipant.Execute(Participatns.Oponent);
+        get { return _playerQueue.Peek(); }
     }
 
-    private void SpawnCardForPaticipant(Participatns participant)
+    private void EndCurrentPlayerTurn()
     {
-        var newCard = Instantiate(CardPrefab);
-        newCard.CardText = Random.Range(1, 10);
-        switch (participant)
-        {
-            case Participatns.Player:
-                newCard.SetParent(PlayersGrid);
-                PlayersScore.Value += newCard.CardText;
-                break;
-            case Participatns.Oponent:
-                newCard.SetParent(OponentsGrid);
-                OponentsScore.Value += newCard.CardText;
-                break;
-            default:
-                throw new ArgumentOutOfRangeException("participant", participant, null);
-        }
+        CurrentPlayerFsm.PerformTransition(PlayerFSMTransitions.EndTurn);
     }
-
-
 }
