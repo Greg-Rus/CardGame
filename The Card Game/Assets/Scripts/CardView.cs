@@ -16,6 +16,13 @@ public class CardView : MonoBehaviour {
         }
     }
 
+    public RectTransform Rect { get; private set; }
+
+    void Awake()
+    {
+        Rect = GetComponent<RectTransform>();
+    }
+
     public void SetParent(GameObject parent)
     {
         transform.parent = parent.transform;

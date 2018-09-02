@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\BasicInstaller.cs" />
+    <Compile Include="Assets\Scripts\CardSlotsView.cs" />
     <Compile Include="Assets\Scripts\CardView.cs" />
     <Compile Include="Assets\Scripts\FSMSystem.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />

@@ -13,7 +13,7 @@ public class BasicInstaller : MonoInstaller
         Container.Bind<Stands>().AsTransient().NonLazy();
         Container.Bind<OtherPlayerTurn>().AsTransient().NonLazy();
 
-        Container.Bind<FSMSystem<PlayerFSMTransitions, PlayerFSMStates>>().FromFactory<FsmFactory>().AsTransient().NonLazy();
+        Container.Bind<PlayerFsm>().FromFactory<FsmFactory>().AsTransient().NonLazy();
     }
 
     //private FSMSystem<PlayerFSMTransitions, PlayerFSMStates> MakeFSM()
@@ -49,12 +49,12 @@ public class BasicInstaller : MonoInstaller
 
 }
 
-public class FsmFactory : IFactory<FSMSystem<PlayerFSMTransitions, PlayerFSMStates>>
+public class FsmFactory : IFactory<PlayerFsm>
 {
 
-    public FSMSystem<PlayerFSMTransitions, PlayerFSMStates> Create()
+    public PlayerFsm Create()
     {
-        var FSM = new FSMSystem<PlayerFSMTransitions, PlayerFSMStates>();
+        var FSM = new PlayerFsm();
         var playerTurnState = new PlayerTurn();
         playerTurnState.AddTransition(PlayerFSMTransitions.PlayCard, PlayerFSMStates.PlayCard);
         playerTurnState.AddTransition(PlayerFSMTransitions.EndTurn, PlayerFSMStates.EndTurn);

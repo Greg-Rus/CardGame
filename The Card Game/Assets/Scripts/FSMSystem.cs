@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UniRx;
 using UnityEngine;
 
@@ -236,6 +237,16 @@ public class FSMSystem<T,S>
                        ". It was not on the list of states");
     }
 
+    public void SetStartingState(S startingState)
+    {
+        var newStartingState = states.FirstOrDefault(state => state.ID.Equals(startingState));
+        if (newStartingState == null)
+        {
+            Debug.LogError("FSM ERROR: State " + startingState.ToString() + " has not been found in the list of states! Has it been added?");
+        }
+        CurrentStateReactiveProperty.Value = newStartingState;
+    }
+
     /// <summary>
     /// This method tries to change the state the FSM is in based on
     /// the current state and the transition passed. If current state
@@ -343,4 +354,9 @@ public enum PlayerFSMStates
     EndTurn,
     Stand,
     OtherPlayerTurn
+}
+
+public class PlayerFsm : FSMSystem<PlayerFSMTransitions, PlayerFSMStates>
+{
+    public Players Player;
 }
