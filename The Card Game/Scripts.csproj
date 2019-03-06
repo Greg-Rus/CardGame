@@ -66,6 +66,7 @@
     <Compile Include="Assets\Scripts\CardView.cs" />
     <Compile Include="Assets\Scripts\FSMSystem.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
+    <Compile Include="Assets\Scripts\PlayerFsm.cs" />
     <Compile Include="Assets\Scripts\UiView.cs" />
     <None Include="Assets\Scripts\Scripts.asmdef" />
     <Reference Include="UnityEngine.AIModule">

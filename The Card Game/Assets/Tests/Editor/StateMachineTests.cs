@@ -15,15 +15,14 @@ public class StateMachineTests : ZenjectUnitTestFixture
         Container.Bind<EndedTurn>().AsTransient().NonLazy();
         Container.Bind<Stands>().AsTransient().NonLazy();
         Container.Bind<OtherPlayerTurn>().AsTransient().NonLazy();
-
-        Container.Bind<FSMSystem<PlayerFSMTransitions, PlayerFSMStates>>().FromFactory<FsmFactory>().AsTransient().NonLazy();
+        Container.Bind<PlayerFsm>().AsTransient().NonLazy();
 
         SetupTest();
     }
 
     public void SetupTest()
     {
-        _fsm = Container.Resolve<FSMSystem<PlayerFSMTransitions, PlayerFSMStates>>();
+        _fsm = Container.Resolve<PlayerFsm>();
     }
 
     [Test]
@@ -48,5 +47,8 @@ public class StateMachineTests : ZenjectUnitTestFixture
         Assert.IsTrue(_fsm.CurrentState.ID == PlayerFSMStates.PlayerTurn);
         _fsm.PerformTransition(PlayerFSMTransitions.Stand);
         Assert.IsTrue(_fsm.CurrentState.ID == PlayerFSMStates.Stand);
+        _fsm.PerformTransition(PlayerFSMTransitions.PassControllToOtherPlayer);
+        Assert.IsTrue(_fsm.CurrentState.ID == PlayerFSMStates.OtherPlayerTurn);
+
     }
 }

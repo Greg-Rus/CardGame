@@ -355,8 +355,3 @@ public enum PlayerFSMStates
     Stand,
     OtherPlayerTurn
 }
-
-public class PlayerFsm : FSMSystem<PlayerFSMTransitions, PlayerFSMStates>
-{
-    public Players Player;
-}

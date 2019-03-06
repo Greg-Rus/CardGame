@@ -6,20 +6,20 @@ using UnityEngine.UI;
 public class UiView : MonoBehaviour
 {
 
-    public Button PlayerEndTurn;
-    public Button PlayerStand;
-    public Button OponentEndTurn;
-    public Button OponentStand;
+    public Button TopPlayerEndTurn;
+    public Button TopPlayerStand;
+    public Button BottomPlayerEndTurn;
+    public Button BottomPlayerStand;
 
-    public Text PlayerScore;
-    public int PlayerScoreText
+    public Text TopPlayerScore;
+    public int TopPlayerScoreText
     {
-        set { PlayerScore.text = value.ToString(); }
+        set { TopPlayerScore.text = value.ToString(); }
     }
 
-    public Text OponentScore;
-    public int OponentScoreText
+    public Text BottomPlayerScore;
+    public int BottomPlayerScoreText
     {
-        set { OponentScore.text = value.ToString(); }
+        set { BottomPlayerScore.text = value.ToString(); }
     }
 }
