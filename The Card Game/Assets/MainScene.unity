@@ -1334,12 +1334,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 321762e702c14df49b36f709005116a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerEndTurn: {fileID: 1833282675}
-  PlayerStand: {fileID: 682316986}
-  OponentEndTurn: {fileID: 1592826389}
-  OponentStand: {fileID: 609572934}
-  PlayerScore: {fileID: 925882037}
-  OponentScore: {fileID: 1774289738}
+  TopPlayerEndTurn: {fileID: 1833282675}
+  TopPlayerStand: {fileID: 682316986}
+  BottomPlayerEndTurn: {fileID: 1592826389}
+  BottomPlayerStand: {fileID: 609572934}
+  TopPlayerScore: {fileID: 1774289738}
+  BottomPlayerScore: {fileID: 925882037}
 --- !u!224 &794953339
 RectTransform:
   m_ObjectHideFlags: 0
